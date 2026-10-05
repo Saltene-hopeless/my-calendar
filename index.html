@@ -17,14 +17,14 @@
 <body>
 
     <h3 id="title">📅 Свободные окошки для записи:</h3>
-
+    
     <div class="slot-container" id="container"></div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Базовый список всех существующих слотов
+        // Базовый список соответствия ID и времени
         const allSlots = {
             1: "Понедельник, 12:00",
             2: "Понедельник, 15:30",
@@ -34,13 +34,12 @@
         };
 
         const urlParams = new URLSearchParams(window.location.search);
-        const idsParam = urlParams.get('ids');
+        const idsParam = urlParams.get('ids'); 
         const container = document.getElementById('container');
 
         if (idsParam && idsParam.trim() !== "") {
-            // Превращаем строку "1,2,3" в массив чисел [1, 2, 3]
             const freeIds = idsParam.split(',').map(Number);
-
+            
             freeIds.forEach(id => {
                 if (allSlots[id]) {
                     const button = document.createElement('button');
@@ -56,8 +55,8 @@
         }
 
         function selectSlot(id) {
-            tg.sendData(JSON.stringify({ slot_id: id }));
-            tg.close();
+            tg.sendData(JSON.stringify({ slot_id: id })); 
+            tg.close(); 
         }
     </script>
 </body>
