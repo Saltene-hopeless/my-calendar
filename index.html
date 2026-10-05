@@ -24,7 +24,7 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Карта соответствия ID и реального времени (совпадает с базой данных)
+        // Базовый список всех существующих слотов
         const allSlots = {
             1: "Понедельник, 12:00",
             2: "Понедельник, 15:30",
@@ -34,11 +34,11 @@
         };
 
         const urlParams = new URLSearchParams(window.location.search);
-        const idsParam = urlParams.get('ids'); // Получаем строку вида "1,2,3,5"
+        const idsParam = urlParams.get('ids');
         const container = document.getElementById('container');
 
-        if (idsParam) {
-            // Разделяем строку в массив чисел [1, 2, 3, 5]
+        if (idsParam && idsParam.trim() !== "") {
+            // Превращаем строку "1,2,3" в массив чисел [1, 2, 3]
             const freeIds = idsParam.split(',').map(Number);
 
             freeIds.forEach(id => {
@@ -56,7 +56,6 @@
         }
 
         function selectSlot(id) {
-            // Отправляем обратно боту числовой ID выбранного слота
             tg.sendData(JSON.stringify({ slot_id: id }));
             tg.close();
         }
