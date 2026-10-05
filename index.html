@@ -4,34 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Выбор времени</title>
-    
+
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background-color: var(--tg-theme-bg-color, #ffffff); color: var(--tg-theme-text-color, #000000); padding: 20px; text-align: center; }
-        h3 { margin-bottom: 20px; color: var(--tg-theme-hint-color, #777777); }
-        .slot-container { display: flex; flex-direction: column; gap: 12px; max-width: 300px; margin: 0 auto; }
-        .slot-btn { background-color: var(--tg-theme-button-color, #248bca); color: var(--tg-theme-button-text-color, #ffffff); border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: transform 0.1s ease; }
-        .slot-btn:active { transform: scale(0.97); }
-        .no-slots { color: var(--tg-theme-hint-color, #999999); font-style: italic; margin-top: 30px; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            padding: 20px;
+            text-align: center;
+            margin: 0;
+        }
+        h3 {
+            margin-bottom: 20px;
+            color: var(--tg-theme-hint-color, #777777);
+            font-weight: 500;
+        }
+        .slot-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+        .slot-btn {
+            background-color: var(--tg-theme-button-color, #248bca);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s ease, opacity 0.1s ease;
+            font-family: inherit;
+        }
+        .slot-btn:active {
+            transform: scale(0.97);
+            opacity: 0.9;
+        }
+        .slot-btn:disabled {
+            opacity: 0.5;
+            cursor: default;
+        }
+        .no-slots {
+            color: var(--tg-theme-hint-color, #999999);
+            font-style: italic;
+            margin-top: 30px;
+        }
     </style>
 </head>
 <body>
 
     <h3 id="title">📅 Свободные окошки для записи:</h3>
-    
     <div class="slot-container" id="container"></div>
 
 <script>
-const scriptElement = document.createElement('script');
-scriptElement.src = "https://telegram.org" + "js/telegram-web-app.js";
-scriptElement.onload = function() {
-    const tg = window.Telegram.WebApp;
-    tg.expand();
-    initCalendar(tg);
-};
-document.head.appendChild(scriptElement);
-
-function initCalendar(tg) {
-    const allSlots = {
+    // Все возможные слоты
+    const ALL_SLOTS = {
         1: "Понедельник, 12:00",
         2: "Понедельник, 15:30",
         3: "Вторник, 10:00",
@@ -39,38 +68,98 @@ function initCalendar(tg) {
         5: "Пятница, 14:20"
     };
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const idsParam = urlParams.get('ids'); 
-    const container = document.getElementById('container');
+    // Точка входа
+    function main() {
+        const tg = window.Telegram && window.Telegram.WebApp;
 
-    if (idsParam && idsParam.trim() !== "") {
-        const freeIds = idsParam.split(',').map(Number);
-        
-        freeIds.forEach(id => {
-            if (allSlots[id]) {
-                const button = document.createElement('button');
-                button.className = 'slot-btn';
-                button.innerText = allSlots[id];
-                button.onclick = () => selectSlot(id, tg);
-                container.appendChild(button);
-            }
-        });
-    } else {
-        document.getElementById('title').innerText = "Ой!";
-        container.innerHTML = '<p class="no-slots">Свободных... пока нет.</p>';
-    }
-}
-
-function selectSlot(id, tg) {
-    tg.sendData(JSON.stringify({ slot_id: id })); 
-    tg.close(); 
-}
-</script>
-
-        function selectSlot(id) {
-            tg.sendData(JSON.stringify({ slot_id: id })); 
-            tg.close(); 
+        if (!tg) {
+            showError("Не удалось загрузить Telegram SDK");
+            return;
         }
-    </script>
+
+        try {
+            tg.expand();
+            tg.ready();
+        } catch (e) {
+            console.warn("tg.expand/ready failed:", e);
+        }
+
+        initCalendar(tg);
+    }
+
+    function initCalendar(tg) {
+        const titleEl = document.getElementById('title');
+        const container = document.getElementById('container');
+
+        const idsParam = new URLSearchParams(window.location.search).get('ids');
+
+        // Парсим и валидируем ID
+        const freeIds = (idsParam || '')
+            .split(',')
+            .map(s => Number(s.trim()))
+            .filter(id => Number.isInteger(id) && ALL_SLOTS[id]);
+
+        // Убираем дубликаты, сохраняя порядок
+        const uniqueIds = [...new Set(freeIds)];
+
+        if (uniqueIds.length === 0) {
+            titleEl.innerText = "😔 Свободных окошек нет";
+            container.innerHTML = '<p class="no-slots">Попробуйте позже.</p>';
+            return;
+        }
+
+        uniqueIds.forEach(id => {
+            const btn = document.createElement('button');
+            btn.className = 'slot-btn';
+            btn.type = 'button';
+            btn.innerText = ALL_SLOTS[id];
+            btn.addEventListener('click', () => selectSlot(id, tg, btn));
+            container.appendChild(btn);
+        });
+    }
+
+    function selectSlot(id, tg, btn) {
+        // Защита от двойного нажатия
+        if (btn) btn.disabled = true;
+
+        try {
+            // sendData доступен только в контексте Telegram WebApp
+            if (typeof tg.sendData === 'function') {
+                tg.sendData(JSON.stringify({ slot_id: id }));
+            } else {
+                throw new Error('sendData недоступен');
+            }
+
+            // Закрываем окно только при успехе
+            if (typeof tg.close === 'function') {
+                tg.close();
+            }
+        } catch (e) {
+            console.error('Ошибка отправки:', e);
+            if (btn) btn.disabled = false;
+
+            if (typeof tg.showAlert === 'function') {
+                tg.showAlert('Не удалось отправить выбор. Попробуйте ещё раз.');
+            } else {
+                alert('Не удалось отправить выбор. Попробуйте ещё раз.');
+            }
+        }
+    }
+
+    function showError(message) {
+        document.getElementById('title').innerText = "⚠️ Ошибка";
+        document.getElementById('container').innerHTML =
+            `<p class="no-slots">${message}</p>`;
+    }
+
+    // Загрузка Telegram SDK
+    (function loadTelegramSdk() {
+        const script = document.createElement('script');
+        script.src = 'https://telegram.org/js/telegram-web-app.js';
+        script.onload = main;
+        script.onerror = () => showError("Не удалось загрузить Telegram SDK");
+        document.head.appendChild(script);
+    })();
+</script>
 </body>
 </html>
