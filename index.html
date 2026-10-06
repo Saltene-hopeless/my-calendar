@@ -413,6 +413,8 @@ function generateSlotsForDay(dayStr) {
     if (!cfg || !cfg.services || cfg.services.length === 0) return [];
 
     const dur = cfg.services[0].duration_min;
+    const step = cfg.slot_step || dur;  // fallback: если сервер не прислал — старый шаг
+
     const [h1, m1] = cfg.work_start.split(":").map(Number);
     const [h2, m2] = cfg.work_end.split(":").map(Number);
     const [Y, M, D] = dayStr.split("-").map(Number);
@@ -421,15 +423,37 @@ function generateSlotsForDay(dayStr) {
     const end   = new Date(Y, M - 1, D, h2, m2);
 
     const slots = [];
-    const step = dur * 60 * 1000;
-    for (let t = start.getTime(); t + step <= end.getTime(); t += step) {
+    const stepMs = step * 60 * 1000;
+    const durMs  = dur * 60 * 1000;
+
+    for (let t = start.getTime(); t + durMs <= end.getTime(); t += stepMs) {
         slots.push(new Date(t));
     }
     return slots;
 }
 
+function parseDbDateTime(s) {
+    const [d, t] = s.split(" ");
+    const [Y, M, D] = d.split("-").map(Number);
+    const [h, m] = t.split(":").map(Number);
+    return new Date(Y, M - 1, D, h, m);
+}
+
 function isSlotOccupied(slotDate) {
-    return state.config.occupied.includes(fmtDateTime(slotDate));
+    const cfg = state.config;
+    if (!cfg || !cfg.occupied || !cfg.occupied.length) return false;
+
+    const dur = cfg.services[0]?.duration_min || 120;
+    const newStart = slotDate.getTime();
+    const newEnd = newStart + dur * 60 * 1000;
+
+    for (const dbStr of cfg.occupied) {
+        const oldStart = parseDbDateTime(dbStr).getTime();
+        const oldEnd = oldStart + dur * 60 * 1000;
+        // Пересечение [newStart, newEnd) и [oldStart, oldEnd)
+        if (newStart < oldEnd && oldStart < newEnd) return true;
+    }
+    return false;
 }
 
 function isSlotInPast(slotDate) {
