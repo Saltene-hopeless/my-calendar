@@ -595,18 +595,31 @@ function renderSlots() {
         <div class="slots-title">Свободное время · ${label}</div>
         <div class="slots-grid">`;
 
-    slots.forEach(slot => {
-        const occupied = isSlotOccupied(slot);
-        const past = isSlotInPast(slot);
-        const disabled = occupied || past || state.booked;
+    let hasVisible = false;
 
-        const hh = pad2(slot.getHours());
-        const mm = pad2(slot.getMinutes());
+slots.forEach(slot => {
+    const occupied = isSlotOccupied(slot);
+    const past = isSlotInPast(slot);
 
-        html += `<button class="slot-btn" data-dt="${fmtDateTime(slot)}" ${disabled ? "disabled" : ""}>
-            ${hh}:${mm}
-        </button>`;
-    });
+    // Пропускаем занятые и прошедшие — вообще не рендерим
+    if (occupied || past) return;
+
+    hasVisible = true;
+
+    const hh = pad2(slot.getHours());
+    const mm = pad2(slot.getMinutes());
+
+    const disabled = state.booked;
+
+    html += `<button class="slot-btn" data-dt="${fmtDateTime(slot)}" ${disabled ? "disabled" : ""}>
+        ${hh}:${mm}
+    </button>`;
+});
+
+// Если ничего не осталось — показываем сообщение
+if (!hasVisible) {
+    return `<div class="card empty">На этот день свободных окошек нет.</div>`;
+}
 
     html += `</div></div>`;
     return html;
