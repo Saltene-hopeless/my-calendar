@@ -166,7 +166,116 @@
             padding: 10px;
             font-size: 14px;
         }
+/* ── Кнопка "Мои записи" ── */
+.top-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+}
+.btn-my {
+    background: var(--bg-secondary);
+    color: var(--text);
+    border: none;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+.btn-my:active {
+    transform: scale(0.97);
+}
 
+/* ── Модалка ── */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 1000;
+    animation: fadeIn 0.15s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+.modal {
+    background: var(--bg);
+    color: var(--text);
+    border-radius: 16px;
+    padding: 18px;
+    max-width: 420px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    text-align: left;
+}
+.modal h3 {
+    margin: 0 0 12px;
+    font-size: 17px;
+}
+.modal-item {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.modal-item .info {
+    flex: 1;
+    min-width: 0;
+}
+.modal-item .info .when {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+.modal-item .info .svc {
+    font-size: 12px;
+    color: var(--hint);
+}
+.modal-item .cancel-btn {
+    background: var(--danger);
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    flex-shrink: 0;
+}
+.modal-item .cancel-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+.modal-close {
+    width: 100%;
+    background: var(--btn);
+    color: var(--btn-text);
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    margin-top: 8px;
+}
+.modal-empty {
+    text-align: center;
+    color: var(--hint);
+    font-style: italic;
+    padding: 16px;
+}
         /* ── Статус ── */
         .status {
             position: fixed;
@@ -211,7 +320,7 @@
 <div id="app">
     <div class="loader"><div class="spinner"></div>Загрузка…</div>
 </div>
-
+<div id="modal-root"></div>
 <div id="status" class="status"></div>
 
 <script>
@@ -350,8 +459,15 @@ function render() {
     const cfg = state.config;
     const app = document.getElementById("app");
 
-    // Заголовок
+        // Кнопка "Мои записи"
     let html = `
+        <div class="top-bar">
+            <button class="btn-my" id="btnMy">📋 Мои записи</button>
+        </div>
+    `;
+
+    // Заголовок
+    html += `
         <h2>Интенсив · ${cfg.services[0]?.duration_min || 120} мин</h2>
         <div class="subtitle">Рабочие часы: ${cfg.work_start}–${cfg.work_end}</div>
     `;
@@ -389,6 +505,10 @@ function render() {
     document.querySelectorAll(".slot-btn").forEach(el => {
         el.addEventListener("click", () => onSlotClick(el));
     });
+        const btnMy = document.getElementById("btnMy");
+    if (btnMy) {
+        btnMy.addEventListener("click", openMyBookings);
+    }
 }
 
 function renderCalendar() {
@@ -539,7 +659,114 @@ async function reloadConfig() {
         console.error("reloadConfig", e);
     }
 }
+/* ═══════════════════════════════════════════════════════════
+   Модалка "Мои записи"
+   ═══════════════════════════════════════════════════════════ */
+async function openMyBookings() {
+    const root = document.getElementById("modal-root");
+    root.innerHTML = `
+        <div class="modal-backdrop" id="modalBackdrop">
+            <div class="modal" id="modalContent">
+                <div class="loader" style="min-height: 100px;">
+                    <div class="spinner"></div>Загрузка…
+                </div>
+            </div>
+        </div>
+    `;
+    // Клик по фону закрывает
+    document.getElementById("modalBackdrop").addEventListener("click", (e) => {
+        if (e.target.id === "modalBackdrop") closeModal();
+    });
 
+    try {
+        const data = await apiGet(`/api/my?user_id=${state.userId}`);
+        if (!data.ok) throw new Error("bad response");
+        renderMyBookings(data.bookings);
+    } catch (e) {
+        console.error(e);
+        document.getElementById("modalContent").innerHTML =
+            '<h3>📋 Мои записи</h3>' +
+            '<div class="modal-empty">Не удалось загрузить. Попробуйте позже.</div>' +
+            '<button class="modal-close" onclick="closeModal()">Закрыть</button>';
+    }
+}
+
+function renderMyBookings(bookings) {
+    const content = document.getElementById("modalContent");
+
+    if (!bookings.length) {
+        content.innerHTML =
+            '<h3>📋 Мои записи</h3>' +
+            '<div class="modal-empty">У вас пока нет записей.</div>' +
+            '<button class="modal-close" onclick="closeModal()">Закрыть</button>';
+        return;
+    }
+
+    let html = '<h3>📋 Мои записи</h3>';
+    bookings.forEach(b => {
+        html += `
+            <div class="modal-item" data-booking-id="${b.id}">
+                <div class="info">
+                    <div class="when">${b.pretty}</div>
+                    <div class="svc">${b.service_name} · ${b.duration_min} мин</div>
+                </div>
+                <button class="cancel-btn" data-cancel="${b.id}">Отменить</button>
+            </div>
+        `;
+    });
+    html += '<button class="modal-close" onclick="closeModal()">Закрыть</button>';
+    content.innerHTML = html;
+
+    // Обработчики отмены
+    content.querySelectorAll("[data-cancel]").forEach(btn => {
+        btn.addEventListener("click", () => onCancelClick(btn));
+    });
+}
+
+async function onCancelClick(btn) {
+    const bookingId = parseInt(btn.dataset.cancel, 10);
+    btn.disabled = true;
+    const originalText = btn.textContent;
+    btn.textContent = "…";
+
+    try {
+        const { status, data } = await apiPost("/api/cancel", {
+            user_id: state.userId,
+            booking_id: bookingId,
+        });
+
+        if (status === 200 && data.ok) {
+            showStatus(`✅ Запись на ${data.slot} отменена`, false, 3500);
+
+            // Удаляем эту строку из списка
+            const row = btn.closest(".modal-item");
+            if (row) row.remove();
+
+            // Если записей больше нет — покажем пустую модалку
+            const remaining = document.querySelectorAll(".modal-item");
+            if (!remaining.length) {
+                renderMyBookings([]);
+            }
+
+            // Обновим доступность слотов в основном экране
+            await reloadConfig();
+            render();
+        } else {
+            btn.disabled = false;
+            btn.textContent = originalText;
+            showStatus(`❌ ${data.error || "Не удалось отменить"}`, true, 4000);
+        }
+    } catch (e) {
+        btn.disabled = false;
+        btn.textContent = originalText;
+        showStatus("❌ Ошибка сети", true, 4000);
+        console.error(e);
+    }
+}
+
+function closeModal() {
+    document.getElementById("modal-root").innerHTML = "";
+}
 /* ═══════════════════════════════════════════════════════════
    Инициализация
    ═══════════════════════════════════════════════════════════ */
