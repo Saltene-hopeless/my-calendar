@@ -47,6 +47,27 @@
             margin-bottom: 14px;
         }
 
+        /* ── Кнопка "Мои записи" ── */
+        .top-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 8px;
+        }
+        .btn-my {
+            background: var(--bg-secondary);
+            color: var(--text);
+            border: none;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .btn-my:active {
+            transform: scale(0.97);
+        }
+
         /* ── Календарь ── */
         .cal-header {
             display: flex;
@@ -166,116 +187,97 @@
             padding: 10px;
             font-size: 14px;
         }
-/* ── Кнопка "Мои записи" ── */
-.top-bar {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 8px;
-}
-.btn-my {
-    background: var(--bg-secondary);
-    color: var(--text);
-    border: none;
-    padding: 8px 14px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-}
-.btn-my:active {
-    transform: scale(0.97);
-}
 
-/* ── Модалка ── */
-.modal-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    z-index: 1000;
-    animation: fadeIn 0.15s ease;
-}
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-.modal {
-    background: var(--bg);
-    color: var(--text);
-    border-radius: 16px;
-    padding: 18px;
-    max-width: 420px;
-    width: 100%;
-    max-height: 80vh;
-    overflow-y: auto;
-    text-align: left;
-}
-.modal h3 {
-    margin: 0 0 12px;
-    font-size: 17px;
-}
-.modal-item {
-    background: var(--bg-secondary);
-    border-radius: 12px;
-    padding: 12px 14px;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-}
-.modal-item .info {
-    flex: 1;
-    min-width: 0;
-}
-.modal-item .info .when {
-    font-weight: 700;
-    font-size: 14px;
-    margin-bottom: 2px;
-}
-.modal-item .info .svc {
-    font-size: 12px;
-    color: var(--hint);
-}
-.modal-item .cancel-btn {
-    background: var(--danger);
-    color: #fff;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    flex-shrink: 0;
-}
-.modal-item .cancel-btn:disabled {
-    opacity: 0.6;
-    cursor: default;
-}
-.modal-close {
-    width: 100%;
-    background: var(--btn);
-    color: var(--btn-text);
-    border: none;
-    padding: 12px;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    margin-top: 8px;
-}
-.modal-empty {
-    text-align: center;
-    color: var(--hint);
-    font-style: italic;
-    padding: 16px;
-}
+        /* ── Модалка ── */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 1000;
+            animation: fadeIn 0.15s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        .modal {
+            background: var(--bg);
+            color: var(--text);
+            border-radius: 16px;
+            padding: 18px;
+            max-width: 420px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            text-align: left;
+        }
+        .modal h3 {
+            margin: 0 0 12px;
+            font-size: 17px;
+        }
+        .modal-item {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .modal-item .info {
+            flex: 1;
+            min-width: 0;
+        }
+        .modal-item .info .when {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+        .modal-item .info .svc {
+            font-size: 12px;
+            color: var(--hint);
+        }
+        .modal-item .cancel-btn {
+            background: var(--danger);
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            flex-shrink: 0;
+        }
+        .modal-item .cancel-btn:disabled {
+            opacity: 0.6;
+            cursor: default;
+        }
+        .modal-close {
+            width: 100%;
+            background: var(--btn);
+            color: var(--btn-text);
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            margin-top: 8px;
+        }
+        .modal-empty {
+            text-align: center;
+            color: var(--hint);
+            font-style: italic;
+            padding: 16px;
+        }
+
         /* ── Статус ── */
         .status {
             position: fixed;
@@ -340,10 +342,10 @@ if (tg) { try { tg.ready(); tg.expand(); } catch (e) {} }
    ═══════════════════════════════════════════════════════════ */
 const state = {
     userId: null,
-    config: null,          // ответ /api/availability
-    viewMonth: null,       // Date, первый день отображаемого месяца
-    selectedDate: null,    // "YYYY-MM-DD"
-    booked: false,         // уже успешно забронировал
+    config: null,
+    viewMonth: null,
+    selectedDate: null,
+    booked: false,
 };
 
 /* ═══════════════════════════════════════════════════════════
@@ -358,13 +360,6 @@ const WEEKDAYS = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
 function pad2(n) { return String(n).padStart(2, "0"); }
 function fmtDate(d) {
     return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-}
-function parseDateTime(s) {
-    // "YYYY-MM-DD HH:MM" → Date (локальное)
-    const [d, t] = s.split(" ");
-    const [Y, M, D] = d.split("-").map(Number);
-    const [h, m] = t.split(":").map(Number);
-    return new Date(Y, M - 1, D, h, m);
 }
 function fmtDateTime(d) {
     return `${fmtDate(d)} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
@@ -414,13 +409,10 @@ function showStatus(text, isError = false, ms = 3500) {
    Генерация слотов на клиенте
    ═══════════════════════════════════════════════════════════ */
 function generateSlotsForDay(dayStr) {
-    // Возвращает массив Date — все возможные слоты в этот день
     const cfg = state.config;
     if (!cfg || !cfg.services || cfg.services.length === 0) return [];
 
-    // Одна услуга по задаче
     const dur = cfg.services[0].duration_min;
-
     const [h1, m1] = cfg.work_start.split(":").map(Number);
     const [h2, m2] = cfg.work_end.split(":").map(Number);
     const [Y, M, D] = dayStr.split("-").map(Number);
@@ -437,10 +429,7 @@ function generateSlotsForDay(dayStr) {
 }
 
 function isSlotOccupied(slotDate) {
-    // Сверяем с cfg.occupied по точному совпадению начала.
-    // (защита от пересечений — на сервере)
-    const s = fmtDateTime(slotDate);
-    return state.config.occupied.includes(s);
+    return state.config.occupied.includes(fmtDateTime(slotDate));
 }
 
 function isSlotInPast(slotDate) {
@@ -459,23 +448,19 @@ function render() {
     const cfg = state.config;
     const app = document.getElementById("app");
 
-        // Кнопка "Мои записи"
     let html = `
         <div class="top-bar">
             <button class="btn-my" id="btnMy">📋 Мои записи</button>
         </div>
     `;
 
-    // Заголовок
     html += `
         <h2>Интенсив · ${cfg.services[0]?.duration_min || 120} мин</h2>
         <div class="subtitle">Рабочие часы: ${cfg.work_start}–${cfg.work_end}</div>
     `;
 
-    // Календарь
     html += renderCalendar();
 
-    // Слоты
     if (state.selectedDate) {
         html += renderSlots();
     } else {
@@ -484,7 +469,6 @@ function render() {
 
     app.innerHTML = html;
 
-    // Навешиваем обработчики
     document.querySelectorAll(".cal-cell.available").forEach(el => {
         el.addEventListener("click", () => {
             state.selectedDate = el.dataset.date;
@@ -505,10 +489,9 @@ function render() {
     document.querySelectorAll(".slot-btn").forEach(el => {
         el.addEventListener("click", () => onSlotClick(el));
     });
-        const btnMy = document.getElementById("btnMy");
-    if (btnMy) {
-        btnMy.addEventListener("click", openMyBookings);
-    }
+
+    const btnMy = document.getElementById("btnMy");
+    if (btnMy) btnMy.addEventListener("click", openMyBookings);
 }
 
 function renderCalendar() {
@@ -523,7 +506,6 @@ function renderCalendar() {
 
     const daysOff = new Set(cfg.days_off);
 
-    // Заголовок с навигацией
     const prevDisabled = (year === today.getFullYear() && month === today.getMonth());
     const nextMonthStart = new Date(year, month + 1, 1);
     const nextDisabled = nextMonthStart > maxDate;
@@ -538,12 +520,10 @@ function renderCalendar() {
             <div class="cal-grid">
     `;
 
-    // Заголовки дней недели
     WEEKDAYS.forEach(w => {
         html += `<div class="cal-cell head">${w}</div>`;
     });
 
-    // Первый день месяца, сдвиг: 0=Пн..6=Вс
     const firstDow = (new Date(year, month, 1).getDay() + 6) % 7;
     for (let i = 0; i < firstDow; i++) {
         html += `<div class="cal-cell empty"></div>`;
@@ -572,10 +552,7 @@ function renderCalendar() {
         html += `<button class="${classes.join(" ")}" ${attrs}>${d}</button>`;
     }
 
-    html += `
-            </div>
-        </div>
-    `;
+    html += `</div></div>`;
     return html;
 }
 
@@ -634,13 +611,11 @@ async function onSlotClick(el) {
         if (status === 200 && data.ok) {
             state.booked = true;
             showStatus(`✅ Запись на ${data.pretty} подтверждена`, false, 5000);
-            // Даём боту 1 сек на отправку сообщения, потом закрываем WebApp
             setTimeout(() => { if (tg) tg.close(); }, 1200);
         } else {
             el.disabled = false;
             el.textContent = originalText;
             showStatus(`❌ ${data.error || "Не удалось записаться"}`, true, 4000);
-            // Обновляем доступность — возможно, слот заняли
             await reloadConfig();
             render();
         }
@@ -659,6 +634,7 @@ async function reloadConfig() {
         console.error("reloadConfig", e);
     }
 }
+
 /* ═══════════════════════════════════════════════════════════
    Модалка "Мои записи"
    ═══════════════════════════════════════════════════════════ */
@@ -673,7 +649,6 @@ async function openMyBookings() {
             </div>
         </div>
     `;
-    // Клик по фону закрывает
     document.getElementById("modalBackdrop").addEventListener("click", (e) => {
         if (e.target.id === "modalBackdrop") closeModal();
     });
@@ -717,7 +692,6 @@ function renderMyBookings(bookings) {
     html += '<button class="modal-close" onclick="closeModal()">Закрыть</button>';
     content.innerHTML = html;
 
-    // Обработчики отмены
     content.querySelectorAll("[data-cancel]").forEach(btn => {
         btn.addEventListener("click", () => onCancelClick(btn));
     });
@@ -738,17 +712,14 @@ async function onCancelClick(btn) {
         if (status === 200 && data.ok) {
             showStatus(`✅ Запись на ${data.slot} отменена`, false, 3500);
 
-            // Удаляем эту строку из списка
             const row = btn.closest(".modal-item");
             if (row) row.remove();
 
-            // Если записей больше нет — покажем пустую модалку
             const remaining = document.querySelectorAll(".modal-item");
             if (!remaining.length) {
                 renderMyBookings([]);
             }
 
-            // Обновим доступность слотов в основном экране
             await reloadConfig();
             render();
         } else {
@@ -767,11 +738,11 @@ async function onCancelClick(btn) {
 function closeModal() {
     document.getElementById("modal-root").innerHTML = "";
 }
+
 /* ═══════════════════════════════════════════════════════════
    Инициализация
    ═══════════════════════════════════════════════════════════ */
 async function init() {
-    // user_id из URL: ?u=123
     const params = new URLSearchParams(window.location.search);
     const u = params.get("u");
     if (!u || !/^\d+$/.test(u)) {
@@ -781,7 +752,6 @@ async function init() {
     }
     state.userId = parseInt(u, 10);
 
-    // Загружаем конфиг
     try {
         state.config = await apiGet("/api/availability");
     } catch (e) {
@@ -791,7 +761,6 @@ async function init() {
         return;
     }
 
-    // Стартовый месяц — текущий
     const now = new Date();
     state.viewMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
